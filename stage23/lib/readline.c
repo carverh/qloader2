@@ -11,6 +11,7 @@
 #endif
 
 int getchar_internal(uint8_t scancode, uint8_t ascii) {
+	// non-printing key
     switch (scancode) {
 #if defined (bios)
         case 0x44:
@@ -60,12 +61,15 @@ int getchar_internal(uint8_t scancode, uint8_t ascii) {
             return GETCHAR_ESCAPE;
 #endif
     }
+
+	// printing key
     switch (ascii) {
         case '\r':
             return '\n';
         case '\b':
             return '\b';
     }
+
     // Guard against non-printable values
     if (ascii < 0x20 || ascii > 0x7e) {
         return -1;
@@ -89,9 +93,7 @@ int _pit_sleep_and_quit_on_keypress(uint32_t ticks);
 int pit_sleep_and_quit_on_keypress(int seconds) {
     return _pit_sleep_and_quit_on_keypress(seconds * 18);
 }
-#endif
-
-#if defined (uefi)
+#elif defined (uefi)
 int getchar(void) {
 again:;
     EFI_INPUT_KEY key = {0};
